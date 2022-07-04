@@ -177,6 +177,8 @@
   context (ngx.ctx.authenticated_jwt_token).  Custom plugins which depend on that
   value being set under that name must be updated to use Kong's shared context
   instead (kong.ctx.shared.authenticated_jwt_token) before upgrading to 3.0
+- **ACME**: `allow_any_domain` field added. It is default to false and if set to true, the gateway will
+  not validate host with `domains` field.
 
 ### Deprecations
 
