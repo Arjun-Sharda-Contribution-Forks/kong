@@ -477,7 +477,6 @@ end
 
 
 local function check_update(self, key, entity, options, name)
-
   local transform
   if options ~= nil then
     local ok, errors = validate_options_value(self, options)
@@ -1384,24 +1383,24 @@ function DAO:row_to_entity(row, options)
     transform = true
   end
 
-  local ws_id = row.ws_id
-
-  local entity, errors = self.schema:process_auto_fields(row, "select", nulls)
-  if not entity then
-    local err_t = self.errors:schema_violation(errors)
-    return nil, tostring(err_t), err_t
-  end
-
+  local transformed_entity
   if transform then
     local err
-    entity, err = self.schema:transform(entity, row, "select")
-    if not entity then
+    transformed_entity, err = self.schema:transform(row, nil, "select")
+    if not transformed_entity then
       local err_t = self.errors:transformation_error(err)
       return nil, tostring(err_t), err_t
     end
   end
 
+  local entity, errors = self.schema:process_auto_fields(transformed_entity or row, "select", nulls)
+  if not entity then
+    local err_t = self.errors:schema_violation(errors)
+    return nil, tostring(err_t), err_t
+  end
+
   if options and options.show_ws_id then
+    local ws_id = row.ws_id
     entity.ws_id = ws_id
 
     -- special behavior for blue-green migrations
